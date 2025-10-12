@@ -11,7 +11,8 @@ define
      NoOverdrafts == \A p \in people: acc[p] >= 0
      NonNegativeInflight == inflight >= 0
      Conservation == acc["alice"] + acc["bob"] + inflight = 10
-     EventuallyConsistent == <>[](acc["alice"] + acc["bob"] = 10)
+    \*  EventuallyConsistent == <>[](acc["alice"] + acc["bob"] = 10)
+    \* （システム障害などで）stuttringが存在する世界では、EventuallyConsistentは満たせない
 end define;
 
 process Wire \in 1..2
