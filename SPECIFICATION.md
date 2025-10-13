@@ -26,6 +26,9 @@
   - amount <= acc[sender] の場合、`acc[sender] := acc[sender] - amount; inflight := inflight + amount` を原子的に実行する。
 - Deposit（入金）
   - `acc[receiver] := acc[receiver] + amount; inflight := inflight - amount` を原子的に実行する。
+- Refund（返金／ロック解除）
+  - 分散システムの一部（送金先側の入金処理系など）が復旧不可能になった場合、予約済み資金をロック解除し、`acc[sender] := acc[sender] + amount; inflight := inflight - amount` を原子的に実行する。
+  - Refund は Reserve の後に Deposit の代替として常に選択可能であり、いずれかで必ず処理を終える。
 
 ## 性質
 
@@ -33,3 +36,6 @@
 - 「inflight ≥ 0」。
 - 「acc["alice"] + acc["bob"] + inflight = 10」。
   - サービスが停止して Deposit が永遠に実行されなくても、資金は `inflight` に保持され、消失しない。
+- 「全プロセスが完了したとき inflight = 0」。
+  - 形式的には `NoInflightAtAllDone == (\A self \in DOMAIN pc: pc[self] = "Done") => inflight = 0` を不変条件として追加する。
+  - 復旧不可能な障害が生じた場合でも Refund によりロックは解除され、資金が宙ぶらりんにならない。
